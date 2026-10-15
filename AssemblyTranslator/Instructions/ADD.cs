@@ -19,24 +19,26 @@ using System.Threading.Tasks;
 //
 class ADD : Instruction
 {
-    public ADD() : base("ADD", 1, ArgTypes.arg2) { }
+    public const string instructionName = "ADD";
+    public ADD() : base(instructionName) { }
 
-    public UInt16 GetOpcode(byte registerD, byte registerR)
+    public override UInt16 GetOpcode(string[] args)
     {
-        UInt16 opcode = 0x1c00 ; //0b0001 11rd dddd rrrr
+        if (!UInt16.TryParse(args[1].Substring(1), out UInt16 registerD)) return 0;
+        if (!UInt16.TryParse(args[2].Substring(1), out UInt16 registerR)) return 0;
+
+        UInt16 opcode = 0x0c00; //0000 11rd dddd rrrr
         opcode |= (UInt16)((registerD & 0x1F) << 4);
         opcode |= (UInt16)(registerR & 0xF);
-        opcode |= (UInt16)((registerR & 0x10) << 9);
+        opcode |= (UInt16)((registerR & (0x10 >> 4)) << 9);
         return opcode;
     }
 
-    public bool Validate(string name, byte registerD, byte registerR)
+    public override bool IsValid(string[] args)
     {
-        return this.name == name && registerD < 32 && registerR < 32;
-    }
-
-    public bool Validate(byte registerD, byte registerR)
-    {
+        if (args.Length != 3) return false;
+        if (!UInt16.TryParse(args[1].Substring(1), out UInt16 registerD)) return false;
+        if (!UInt16.TryParse(args[2].Substring(1), out UInt16 registerR)) return false;
         return registerD < 32 && registerR < 32;
     }
 }

@@ -63,11 +63,12 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Classes\Analyzer.cs" />
+    <Compile Include="Classes\ImportInstructions.cs" />
     <Compile Include="Classes\Instruction.cs" />
+    <Compile Include="Classes\LongInstruction.cs" />
     <Compile Include="Classes\Translator.cs" />
-    <Compile Include="Enums\ArgTypes.cs" />
     <Compile Include="Instructions\ADD.cs" />
+    <Compile Include="Instructions\LongInstructions\JMP.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -102,6 +103,9 @@
   <ItemGroup>
     <Resource Include="TranslatorLogo.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Enums\" />
+    <Folder Include="Interface\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

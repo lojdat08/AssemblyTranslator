@@ -12,6 +12,6 @@
     <Grid>
         <TextBox x:Name="InputTextBox" HorizontalAlignment="Left" Margin="50,50,0,0" Text="TextBox" VerticalAlignment="Top" Width="315" AcceptsTab="True" VerticalScrollBarVisibility="Visible" Height="562" AcceptsReturn="True"/>
         <Button Content="----&gt;" HorizontalAlignment="Center" Margin="0,265,0,0" VerticalAlignment="Top" Height="100" Width="240" FontSize="48" Click="Button_Click"/>
-        <TextBox x:Name="OutputTextBox" HorizontalAlignment="Right" Margin="0,50,50,0" Text="TextBox" VerticalAlignment="Top" Width="315" AcceptsTab="True" VerticalScrollBarVisibility="Visible" Height="562"/>
+        <TextBox x:Name="OutputTextBox" HorizontalAlignment="Right" Margin="0,50,50,0" VerticalAlignment="Top" Width="315" AcceptsTab="True" VerticalScrollBarVisibility="Visible" Height="562" IsReadOnly="True"/>
     </Grid>
 </Window>

@@ -42,7 +42,28 @@ namespace AssemblyTranslator
             {
                 data += input + "\n";
             }
-            MessageBox.Show(data);
+
+            MessageBox.Show("Input data:\n" + data);
+            bool succesed = translator.TranslateCode(inputData, out string[] outputData);
+            if (succesed) MessageBox.Show("Translation Succeded. :)");
+            else MessageBox.Show("Translation Failed. :(");
+
+            if (outputData == null)
+            {
+                MessageBox.Show("No output data.");
+                return;
+            }
+
+            OutputTextBox.Clear();
+            data = string.Empty;
+            foreach (string output in outputData)
+            {
+                OutputTextBox.AppendText(output + "\n");
+                data += output + "\n";
+            }
+
+            MessageBox.Show("Output data:\n" + data);
+
         }
     }
 }

@@ -4,18 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-class Instruction
+public abstract class Instruction
 {
     public string name;
     public int cycles;
-    public ArgTypes argTypes;
-    protected bool longInstruction { get; private set; }
 
-    public Instruction(string name, int cycles, ArgTypes argTypes, bool longInstruction = false)
+    public Instruction(string name, int cycles = 1)
     {
         this.name = name;
         this.cycles = cycles;
-        this.argTypes = argTypes;
-        this.longInstruction = longInstruction;
     }
+
+    public abstract UInt16 GetOpcode(string[] args);
+    public abstract bool IsValid(string[] args);
 }
