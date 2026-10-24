@@ -1,3 +1,5 @@
 <Solution>
+  <Project Path="AssemblyTranslator.Core/AssemblyTranslator.Core.csproj" Id="8c45f607-1f35-4b44-a4ed-eddb8b54faea" />
   <Project Path="AssemblyTranslator/AssemblyTranslator.csproj" Id="8c2f429a-2f3d-4733-a1b5-f20ef8b8b809" />
+  <Project Path="ProjectTests/ProjectTests.csproj" Id="4adbbde7-6e3d-4ba0-a668-ba2f87cc5be1" />
 </Solution>

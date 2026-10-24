@@ -17,14 +17,14 @@ using System.Threading.Tasks;
 //  0 <= k <= 4M (4 194 303)
 //
 
-class JMP : LongInstruction
+public class JMP : LongInstruction
 {
     public const string instructionName = "JMP";
     public JMP() : base(instructionName) { }
 
-    public override UInt32 GetOpcode(string[] args)
+    public override UInt32 GetOpcode(object[] args)
     {
-        if (!UInt32.TryParse(args[1], out UInt32 valueK)) return 0;
+        UInt32 valueK = ((Address)args[1]).value;
 
         UInt32 opcode = 0x940C0000; //1001 010k kkkk 110k
                                     //kkkk kkkk kkkk kkkk
@@ -33,10 +33,10 @@ class JMP : LongInstruction
         return opcode;
     }
 
-    public override bool IsValid(string[] args)
+    public override bool IsValid(object[] args)
     {
         if (args.Length != 2) return false;
-        if (!UInt32.TryParse(args[1], out UInt32 valueK)) return false;
-        return valueK <= 4194303; // 2ˇ22 - 1
+        if (!(args[1] is Address)) return false;
+        return ((Address)args[1]).value <= 4194303; // 2ˇ22 - 1
     }
 }
