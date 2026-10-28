@@ -1,11 +1,11 @@
 ﻿using System;
 
-public struct Register
+public class Register : Token
 {
     public const byte maxValue = 31;
     public byte value;
 
-    public Register(byte value)
+    public Register(byte value) : base(TokenType.register)
     {
         this.value = value;
     }

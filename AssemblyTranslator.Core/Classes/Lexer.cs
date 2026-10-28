@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Text;
 
-public class Analyzer
+public class Lexer
 {
-    private Dictionary<string, Address> labels;
+    public Dictionary<string, Address> labels { get; private set; }
 
-    public Analyzer()
+    public Lexer()
     {
         labels = new Dictionary<string, Address>();
     }
@@ -16,34 +16,28 @@ public class Analyzer
         labels.Clear();
     }
 
-    public bool TryGetLavel(string label, out Address address)
+    public bool TryGetLabel(string label, out Address address)
     {
         return labels.TryGetValue(label, out address);
     }
 
-    public string[] GetArgs(string line)
+    public string[] GetLexems(string line)
     {
         string curData = RemoveComments(line);
         curData = curData.Trim();
         if (curData == string.Empty) return Array.Empty<string>();
 
-        string[] args = curData.Split(new[] { ' ', '\t' });
-        RemoveEmptyArgs(ref args);
-
-        return args;
+        return curData.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries); // rozdělení na jednotlivé lexémy
     }
 
-    public string GetFirstArg(string line)
+    public string GetFirstLexem(string line)
     {
-        string curData = RemoveComments(line);
-        curData = curData.Trim();
-        if (curData == string.Empty) return string.Empty;
+        string newLine = RemoveComments(line);
+        newLine = newLine.Trim();
+        if (newLine == string.Empty) return string.Empty;
 
-        string[] args = curData.Split(new[] { ' ', '\t' });
-        foreach (string arg in args)
-        {
-            if (arg != string.Empty) return arg;
-        }
+        string[] lexems = newLine.Split(new[] { ' ', '\t' }, 2, StringSplitOptions.RemoveEmptyEntries);
+        if (lexems.Length > 0) return lexems[0];
         return string.Empty;
     }
 
@@ -75,20 +69,37 @@ public class Analyzer
         else return labels.ContainsKey(label);
     }
 
-    public object[] ConvertArgs(string[] args) // regsitry, návěstí, konstanty
+    public bool TryConvertLexemsToTokens(string[] lexems, out Token[] tokens) // přeskočí první lexem (vždy název instrukce)
     {
-        object[] newArgs = new object[args.Length];
-        if (args.Length <= 0) return newArgs;
-        newArgs[0] = args[0];
-
-        for (int i = 1; i < args.Length && i < 3; i++)
+        if (lexems.Length <= 1)
         {
-            if (IsLabel(args[i])) newArgs[i] = labels[args[i]];
-            else if (IsDigit(args[i], out int cislo)) newArgs[i] = new Constant(cislo);
-            else if (IsRegister(args[i], out Register register)) newArgs[i] = register;
-            else newArgs[i] = "";
+            tokens = Array.Empty<Token>();
+            return lexems.Length > 0;
         }
-        return newArgs;
+        tokens = new Token[lexems.Length - 1];
+
+        for (int i = 0; i < lexems.Length - 1; i++)
+        {
+            if (TryConvertLexemToToken(lexems[i + 1], out Token token))
+            {
+                tokens[i] = token;
+            }
+            else return false;
+        }
+        return true;
+    }
+
+    private bool TryConvertLexemToToken(string lexem, out Token token) // regsitry, návěstí, konstanty
+    {
+        if (IsDigit(lexem, out int cislo)) token = new Constant(cislo);
+        else if (IsLabel(lexem)) token = labels[RemoveLabelIdentifier(lexem)]; 
+        else if (IsRegister(lexem, out Register register)) token = register;
+        else
+        {
+            token = null!;
+            return false;
+        }
+        return true;
     }
 
     public string RemoveLabelIdentifier(string label)
@@ -100,6 +111,7 @@ public class Analyzer
     public bool IsValidLabel(string label)
     {
         if (label.Length < 2) return false;
+        if (char.IsDigit(label[0])) return false; // kvůli konfliktům návěstí a konstant nesmí návěstí obsahovat čílsici na prvním místě
         if (label[label.Length - 1] != ':') return false; // každé návěstí musí končit s ':'
         return true;
     }
@@ -127,15 +139,5 @@ public class Analyzer
         }
         if (stopIndex == line.Length) return line;
         else return line.Substring(0, stopIndex);
-    }
-
-    private void RemoveEmptyArgs(ref string[] args)
-    {
-        List<String> newArgs = new List<string>();
-        foreach (string arg in args)
-        {
-            if (arg != string.Empty) newArgs.Add(arg);
-        }
-        args = newArgs.ToArray();
     }
 }

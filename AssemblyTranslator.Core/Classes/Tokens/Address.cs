@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-public struct Address
+public class Address : Token
 {
     public const UInt32 maxValue = 4194303; // 2ˇ22 - 1
     public UInt32 value;
 
-    public Address(UInt32 value)
+    public Address(UInt32 value) : base(TokenType.address)
     {
         this.value = value;
     }
@@ -37,7 +37,7 @@ public struct Address
         address = new Address(0);
         if (UInt32.TryParse(input, out UInt32 value))
         {
-            if (address.value <= maxValue)
+            if (value <= maxValue)
             {
                 address.value = value;
                 return true;

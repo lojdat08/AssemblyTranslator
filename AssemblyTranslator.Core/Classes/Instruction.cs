@@ -6,15 +6,21 @@ using System.Threading.Tasks;
 
 public abstract class Instruction
 {
-    public string name { get; private set; }
+    private string name;
+    public bool isLong { get; private set; }
 
-    public Instruction(string name)
+    public Instruction(string name, bool isLong = false)
     {
         this.name = name;
+        this.isLong = isLong;
     }
 
-    public abstract UInt16 GetOpcode(object[] args);
-    public abstract bool IsValid(object[] args);
+    public abstract UInt16 GetOpcode(Token[] tokens);
+    public virtual UInt32 GetLongOpcode(Token[] tokens)
+    {
+        throw new NotImplementedException();
+    }
+    public abstract bool IsValid(Token[] tokens);
 
     public override string ToString()
     {

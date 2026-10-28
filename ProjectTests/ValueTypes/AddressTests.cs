@@ -4,13 +4,18 @@ namespace ProjectTests.ValueTypes
 {
     public class AddressTests
     {
-        [Theory]
-        [InlineData("", false)]
-        [InlineData("0", true, 0)]
-        [InlineData("4194303", true, 4194303)]
-        [InlineData("125543515255252", false)]
-        [InlineData("-1", false)]
+        public static TheoryData<string, bool, UInt32> tryParseData => new()
+        {
+            { "", false, 0},
+            { "0", true, 0},
+            { Address.maxValue.ToString(), true, Address.maxValue},
+            { (Address.maxValue + 1).ToString(), false, 0},
+            { "125543515255252", false, 0},
+            { "-1", false, 0},
+        };
 
+        [Theory]
+        [MemberData(nameof(tryParseData), DisableDiscoveryEnumeration = true)]
         public void TryParse(string input, bool expected, UInt32 expectedValue = 0)
         {
             if (Address.TryParse(input, out Address address))
@@ -23,6 +28,20 @@ namespace ProjectTests.ValueTypes
                 Assert.Equal(address.value, expectedValue);
             }
             else Assert.False(expected);
+        }
+
+        public static TheoryData<Address, Address, RelativeAddress> relativeData => new()
+        {
+            { new Address(0), new Address(1), new RelativeAddress(1) },
+            { new Address(10), new Address(5), new RelativeAddress(-5) },
+            { new Address(50000), new Address(25000), new RelativeAddress(-25000) }
+        };
+
+        [Theory]
+        [MemberData(nameof(relativeData))]
+        public void Relative(Address curAddress, Address targetAddress, RelativeAddress expected)
+        {
+            Assert.Equal(expected.value, curAddress.relative(targetAddress).value);
         }
     }
 }

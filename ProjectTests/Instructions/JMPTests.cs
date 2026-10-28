@@ -4,38 +4,47 @@ namespace ProjectTests.Instructions
 {
     public class JMPTests
     {
-
-        [Theory]
-        [InlineData(new object[] { "JMP", "0" }, (UInt32)0x940C0000)]
-        [InlineData(new object[] { "JMP", "1032" }, (UInt32)0x940C0408)]
-        [InlineData(new object[] { "JMP", "4194303" }, (UInt32)0x95FDFFFF)]
-        public void GetOpcode(object[] args, UInt32 expectedOpcode)
+        [Fact]
+        public void GetOpcode()
         {
             JMP jmp = new JMP();
-            Address.TryParse((string)args[1], out Address address);
-            args[1] = address;
-            Assert.Equal(expectedOpcode, jmp.GetOpcode(args));
+            Assert.Throws<NotImplementedException>(() => jmp.GetOpcode(Array.Empty<Token>()));
         }
 
+
+        public static TheoryData<Token[], UInt32> GetLongOpcodeData => new()
+        {
+            { new Token[] { new Address(0) }, 0x940C0000 }, // JMP 0
+            { new Token[] { new Address(1032) }, 0x940C0408 }, // JMP 1032
+            { new Token[] { new Address(4194303) }, 0x95FDFFFF } // JMP 4194303
+        };
+
         [Theory]
-        [InlineData(new object[] { "JMP", "" }, false)]
-        [InlineData(new object[] { "JMP", "0" }, true)]
-        [InlineData(new object[] { "JMP", "-1" }, false)]
-        [InlineData(new object[] { "JMP", "1024" }, true)]
-        [InlineData(new object[] { "JMP", "4194303" }, true)]
-        [InlineData(new object[] { "JMP", "10000000" }, false)]
-        [InlineData(new object[] { "JMP", "999999999999" }, false)]
-        public void IsValid(object[] args, bool expected)
+        [MemberData(nameof(GetLongOpcodeData))]
+        public void GetLongOpcode(Token[] tokens, UInt32 expectedOpcode)
         {
             JMP jmp = new JMP();
-            for (int i = 1; i < args.Length; i++)
-            {
-                if (Address.TryParse((string)args[i], out Address address))
-                {
-                    args[i] = address;
-                }
-            }
-            Assert.Equal(expected, jmp.IsValid(args));
+            Assert.Equal(expectedOpcode, jmp.GetLongOpcode(tokens));
+        }
+
+
+        public static TheoryData<Token[], bool> IsValidData => new()
+        {
+            { new Token[] { }, false }, // JMP - false
+            { new Token[] { new Address(0) }, true }, // JMP 0 - true
+            { new Token[] { new Address(1024) }, true }, // JMP 1024 - true
+            { new Token[] { new Address(Address.maxValue) }, true }, // JMP 4194303 - true
+            { new Token[] { new Address(Address.maxValue + 1) }, false }, // JMP 4194304 - false
+            { new Token[] { new Address(10000000) }, false }, // JMP 10000000 - false
+            { new Token[] { new Constant(0) }, false } // (experimental)
+        };
+
+        [Theory]
+        [MemberData(nameof(IsValidData))]
+        public void IsValid(Token[] tokens, bool expected)
+        {
+            JMP jmp = new JMP();
+            Assert.Equal(expected, jmp.IsValid(tokens));
         }
     }
 }

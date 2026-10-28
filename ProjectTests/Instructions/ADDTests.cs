@@ -4,39 +4,45 @@ namespace ProjectTests.Instructions
 {
     public class ADDTests
     {
+        public static TheoryData<Token[], UInt16> GetOpcodeData => new()
+        {
+            { new Token[] { new Register(0), new Register(0) }, 0x0c00 },   // ADD r0, r0
+            { new Token[] { new Register(31), new Register(31) }, 0x0fff }, // ADD r31, r31
+            { new Token[] { new Register(16), new Register(16) }, 0x0f00 }, // ADD r16, r16
+            { new Token[] { new Register(15), new Register(17) }, 0x0ef1 }  // ADD r15, r17
+        };
 
         [Theory]
-        [InlineData(new object[] { "ADD", "r0", "r0"}, (UInt16)0x0c00)]
-        [InlineData(new object[] { "ADD", "r31", "r31" }, (UInt16)0x0fff)]
-        [InlineData(new object[] { "ADD", "r16", "r16" }, (UInt16)0x0f00)]
-        [InlineData(new object[] { "ADD", "r15", "r17" }, (UInt16)0x0ef1)]
-        public void GetOpcode(object[] args, UInt16 expectedOpcode)
+        [MemberData(nameof(GetOpcodeData))]
+        public void GetOpcode(Token[] tokens, UInt16 expectedOpcode)
         {
             ADD add = new ADD();
-            Register.TryParse((string)args[1], out Register register1);
-            Register.TryParse((string)args[2], out Register register2);
-            args[1] = register1;
-            args[2] = register2;
-            Assert.Equal(expectedOpcode, add.GetOpcode(args));
+            Assert.Equal(expectedOpcode, add.GetOpcode(tokens));
         }
 
-        [Theory]
-        [InlineData(new object[] { "ADD", "r0", "r0" }, true)]
-        [InlineData(new object[] { "ADD" }, false)]
-        [InlineData(new object[] { "ADD", "r0" }, false)]
-        [InlineData(new object[] { "ADD", "r0", "r0", "r0" }, false)]
-        [InlineData(new object[] { "ADD", "r31", "r31" }, true)]
-        [InlineData(new object[] { "ADD", "r32", "r32" }, false)]
-        public void IsValid(object[] args, bool expected)
+        [Fact]
+        public void GetLongOpcode()
         {
             ADD add = new ADD();
-            for (int i = 1; i < args.Length; i++)
-            {
-                if(Register.TryParse((string)args[i], out Register register))
-                {
-                    args[i] = register;
-                }
-            }
+            Assert.Throws<NotImplementedException>(() => add.GetLongOpcode(Array.Empty<Token>()));
+        }
+
+        public static TheoryData<Token[], bool> IsValidData => new()
+        {
+            { new Token[] { new Register(0), new Register(0) }, true }, // ADD r0, r0 - true
+            { new Token[] { }, false }, // ADD - false
+            { new Token[] { new Register(0) }, false }, // ADD r0 - false
+            { new Token[] { new Register(0), new Register(0), new Register(0) }, false }, // ADD r0, r0, r0 - false
+            { new Token[] { new Register(31), new Register(31) }, true }, // ADD r31, r31 - true
+            { new Token[] { new Register(32), new Register(32) }, false },  // ADD r32, r32 - false
+            { new Token[] { new Register(0), new Address(0) }, false }  // ADD r0, 0 - false (experimental)
+        };
+
+        [Theory]
+        [MemberData(nameof(IsValidData))]
+        public void IsValid(Token[] args, bool expected)
+        {
+            ADD add = new ADD();
             Assert.Equal(expected, add.IsValid(args));
         }
     }

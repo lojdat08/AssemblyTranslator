@@ -1,10 +1,10 @@
 ﻿using System;
 
-public struct RelativeAddress
+public class RelativeAddress : Token
 {
     public Int32 value;
 
-    public RelativeAddress(Int32 value)
+    public RelativeAddress(Int32 value) : base(TokenType.relativeAddress)
     {
         this.value = value;
     }
@@ -13,5 +13,10 @@ public struct RelativeAddress
     {
         relativeAddress = new RelativeAddress(0);
         return Int32.TryParse(input, out relativeAddress.value);
+    }
+
+    public override string ToString()
+    {
+        return value.ToString();
     }
 }

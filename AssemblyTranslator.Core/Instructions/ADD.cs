@@ -22,10 +22,10 @@ public class ADD : Instruction
     public const string instructionName = "ADD";
     public ADD() : base(instructionName) { }
 
-    public override UInt16 GetOpcode(object[] args) 
+    public override UInt16 GetOpcode(Token[] tokens) 
     {
-        Register registerD = (Register)args[1];
-        Register registerR = (Register)args[2];
+        Register registerD = (Register)tokens[0];
+        Register registerR = (Register)tokens[1];
 
         UInt16 opcode = 0x0c00; //0000 11rd dddd rrrr
         opcode |= (UInt16)((registerD.value & 0x1F) << 4);
@@ -34,12 +34,12 @@ public class ADD : Instruction
         return opcode;
     }
 
-    public override bool IsValid(object[] args)
+    public override bool IsValid(Token[] tokens)
     {
-        if (args.Length != 3) return false;
-        if (!(args[1] is Register)) return false;
-        if (!(args[2] is Register)) return false;
+        if (tokens.Length != 2) return false;
+        if (tokens[0].type != TokenType.register) return false;
+        if (tokens[1].type != TokenType.register) return false;
 
-        return ((Register)args[1]).value < 32 && ((Register)args[2]).value < 32;
+        return ((Register)tokens[0]).value < 32 && ((Register)tokens[1]).value < 32;
     }
 }

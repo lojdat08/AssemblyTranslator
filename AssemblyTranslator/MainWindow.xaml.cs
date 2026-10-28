@@ -44,7 +44,7 @@ namespace AssemblyTranslator
             }
 
             MessageBox.Show("Input data:\n" + data);
-            bool succesed = translator.TranslateCode(inputData, out string[] outputData, out List<string> errorList);
+            bool succesed = translator.TranslateCode(inputData, out string[] outputData, out List<string> errorList, out string[] labelsList);
             if (succesed) MessageBox.Show("Translation Succeded. :)");
             else MessageBox.Show("Translation Failed. :(");
 
@@ -66,6 +66,12 @@ namespace AssemblyTranslator
             {
                 OutputTextBox.AppendText(output + "\n");
                 data += output + "\n";
+            }
+
+            labelsListView.Items.Clear();
+            foreach (string label in labelsList)
+            {
+                labelsListView.Items.Add(label);
             }
 
             MessageBox.Show("Output data:\n" + data);

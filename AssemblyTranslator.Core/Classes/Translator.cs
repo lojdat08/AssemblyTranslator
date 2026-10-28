@@ -8,23 +8,18 @@ using System.Threading.Tasks;
 
 public class Translator
 {
-    Dictionary<string, Instruction> instructionMap;
-    Dictionary<string, LongInstruction> longInstructionMap;
-    Analyzer analyzer;
+    SymbolTable symbolTable;
+    Lexer lexer;
 
     public Translator()
     {
-        analyzer = new Analyzer();
-        instructionMap = new Dictionary<string, Instruction>();
-        longInstructionMap = new Dictionary<string, LongInstruction>();
-
-        ImportInstructions.SetInstructions(ref instructionMap);
-        ImportInstructions.SetInstructions(ref longInstructionMap);
+        symbolTable = new SymbolTable();
+        lexer = new Lexer();
     }
 
-    public bool TranslateCode(string[] inputData, out string[] outputData, out List<string> errorList)
+    public bool TranslateCode(string[] inputData, out string[] outputData, out List<string> errorList, out string[] labelsList)
     {
-        analyzer.Reset();
+        lexer.Reset();
         errorList = new List<string>();
         int lineCounter = 0;
         Address curAddress = new Address(0);
@@ -35,51 +30,47 @@ public class Translator
 
         foreach (string line in inputData)
         {
-            string[] textArgs = analyzer.GetArgs(line);
-            if (textArgs.Length <= 0) continue;
+            string[] lexems = lexer.GetLexems(line);
+            if (lexems.Length <= 0) continue;
 
             lineCounter++;
 
-            if (IsValidInstruction(textArgs[0], out bool isLong))
+            if (symbolTable.IsValidInstruction(lexems[0]))
             {
-                object[] args = analyzer.ConvertArgs(textArgs);
-                if (!isLong)
+                if (!lexer.TryConvertLexemsToTokens(lexems, out Token[] tokens))
                 {
-                    Instruction instruction = instructionMap[textArgs[0]];
-                    if (instruction.IsValid(args))
+                    errorList.Add($"Error when converting lexems to tokens, at line {lineCounter}");
+                    continue;
+                }
+
+                Instruction instruction = symbolTable.instructionMap[lexems[0]];
+                if (instruction.IsValid(tokens))
+                {
+                    if(!instruction.isLong)
                     {
-                        UInt16 opcode = instruction.GetOpcode(args);
+                        UInt16 opcode = instruction.GetOpcode(tokens);
                         opcodeData[curAddress] = opcode;
                         curAddress++;
                     }
                     else
                     {
-                        errorList.Add($"Instruction: \"{instruction}\" doesn't have valid arguments, at line {lineCounter}.");
-                        continue;
-                    }
-                }
-                else
-                {
-                    LongInstruction longInstruction = longInstructionMap[textArgs[0]];
-                    if (longInstruction.IsValid(args))
-                    {
-                        UInt32 opcode = longInstruction.GetOpcode(args);
+                        UInt32 opcode = instruction.GetLongOpcode(tokens);
                         opcodeData[curAddress] = (UInt16)(opcode >> 16); // prvně přidat vysoký bity
                         curAddress++;
                         opcodeData[curAddress] = (UInt16)(opcode & 0xFFFF); // potom přidat nižší bity
                         curAddress++;
                     }
-                    else
-                    {
-                        errorList.Add($"Instruction: \"{longInstruction}\" doesn't have valid arguments, at line {lineCounter}.");
-                        continue;
-                    }
+                }
+                else
+                {
+                    errorList.Add($"Instruction: \"{instruction}\" doesn't have valid arguments, at line {lineCounter}.");
+                    continue;
                 }
             }
-            else if (analyzer.IsLabel(textArgs[0])) continue;
+            else if (lexer.IsLabel(lexems[0])) continue;
             else
             {
-                errorList.Add($"Found invalid instruction: \"{textArgs[0]}\" at line: {lineCounter}");
+                errorList.Add($"Found unknown instruction: \"{lexems[0]}\" at line: {lineCounter}");
                 continue;
             }
         }
@@ -89,24 +80,17 @@ public class Translator
             outputData[i] = opcodeData[i].ToString("X4");
         }
 
-        return errorList.Count == 0;
-    }
-
-    public string IsCodeValid(string[] inputData)
-    {
-        return string.Empty; // Možnost kontroly celého kódu
-    }
-
-    private bool IsValidInstruction(string instructionName, out bool isLong)
-    {
-        isLong = false;
-        if (instructionMap.ContainsKey(instructionName)) return true;
-        if (longInstructionMap.ContainsKey(instructionName))
         {
-            isLong = true;
-            return true;
+            labelsList = new string[lexer.labels.Count];
+            int i = 0;
+            foreach (KeyValuePair<String, Address> label in lexer.labels)
+            {
+                labelsList[i] = $"{label.Key} -> {label.Value}";
+                i++;
+            }
         }
-        return false;
+
+        return errorList.Count == 0;
     }
 
     private void ParseLabels(string[] inputData, ref List<string> errorList, out UInt32 wordSize)
@@ -118,18 +102,18 @@ public class Translator
         foreach (string line in inputData)
         {
             lineCounter++;
-            string arg = analyzer.GetFirstArg(line);
-            if (arg == string.Empty) continue;
-            if(IsValidInstruction(arg, out bool isLong))
+            string lexem = lexer.GetFirstLexem(line);
+            if (lexem == string.Empty) continue;
+            if (symbolTable.IsValidInstruction(lexem, out bool isLong))
             {
                 curAddress++;
                 if (isLong) curAddress++;
             }
-            else if(analyzer.IsValidLabel(arg))
+            else if(lexer.IsValidLabel(lexem))
             {
-                arg = analyzer.RemoveLabelIdentifier(arg);
-                if (!analyzer.IsLabel(arg)) analyzer.AddLabel(arg, curAddress);
-                else errorList.Add($"Label: \"{arg}\" is already defined, at line {lineCounter}.");
+                lexem = lexer.RemoveLabelIdentifier(lexem);
+                if (!lexer.IsLabel(lexem)) lexer.AddLabel(lexem, curAddress);
+                else errorList.Add($"Label: \"{lexem}\" is already defined, at line {lineCounter}.");
             }
         }
         wordSize = curAddress.value;
