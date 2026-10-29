@@ -140,4 +140,15 @@ public class Lexer
         if (stopIndex == line.Length) return line;
         else return line.Substring(0, stopIndex);
     }
+
+    public void ChangeAddressesToRelative(Token[] tokens, Address curAddress)
+    {
+        for(int i = 0; i < tokens.Length; i++)
+        {
+            if (tokens[i].type == TokenType.address)
+            {
+                tokens[i] = ((Address)tokens[i]).relative(curAddress);
+            }
+        }
+    }
 }

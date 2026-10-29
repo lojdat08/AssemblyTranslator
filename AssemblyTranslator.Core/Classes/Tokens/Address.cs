@@ -11,9 +11,9 @@ public class Address : Token
         this.value = value;
     }
 
-    public RelativeAddress relative(Address targetAddress)
+    public RelativeAddress relative(Address curAddress)
     {
-        return new RelativeAddress((Int32)targetAddress.value - (Int32)value);
+        return new RelativeAddress((Int32)value - (Int32)curAddress.value);
     }
 
     public static Address operator ++(Address address)

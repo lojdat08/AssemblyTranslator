@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-/// <summary>
+﻿/// <summary>
 /// ADD - Add without Carry
 /// </summary>
 /// <remarks>
 /// <para>Opeartion:   Rd = Rd + Rr</para>
-/// <para>Syntax:   ADD Rd, Rr  (Needs 2 args of type "Register")</para>
-/// <para>Cycles:   1</para>
+/// <para>Syntax:   ADD Rd, Rr  (Needs 2 tokens of type "Register")</para>
 /// </remarks>
 
 // - constraints

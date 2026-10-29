@@ -41,7 +41,7 @@ namespace ProjectTests.ValueTypes
         [MemberData(nameof(relativeData))]
         public void Relative(Address curAddress, Address targetAddress, RelativeAddress expected)
         {
-            Assert.Equal(expected.value, curAddress.relative(targetAddress).value);
+            Assert.Equal(expected.value, targetAddress.relative(curAddress).value);
         }
     }
 }

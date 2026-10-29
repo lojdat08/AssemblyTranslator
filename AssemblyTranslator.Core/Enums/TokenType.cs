@@ -1,5 +1,5 @@
 ﻿
-public enum TokenType
+public enum TokenType : byte
 {
     none,
     register,

@@ -9,6 +9,11 @@ public class RelativeAddress : Token
         this.value = value;
     }
 
+    public RelativeAddress(Address curAddress, Address targetAddress) : base(TokenType.relativeAddress)
+    {
+        this.value = (Int32)targetAddress.value - (Int32)curAddress.value;
+    }
+
     public static bool TryParse(string input, out RelativeAddress relativeAddress)
     {
         relativeAddress = new RelativeAddress(0);

@@ -14,6 +14,7 @@ public class SymbolTable
 
         instructionMap.Add(ADD.instructionName, new ADD());
         instructionMap.Add(JMP.instructionName, new JMP());
+        instructionMap.Add(RJMP.instructionName, new RJMP());
     }
 
     public bool IsValidInstruction(string instructionName)
