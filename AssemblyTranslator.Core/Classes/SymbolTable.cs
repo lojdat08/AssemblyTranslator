@@ -1,20 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 public class SymbolTable
 {
-    public Dictionary<string, Instruction> instructionMap { get; private set; }
+    public readonly Dictionary<string, Instruction> instructionMap;
 
     public SymbolTable()
     {
-        instructionMap = new Dictionary<string, Instruction>();
-
-        instructionMap.Add(ADD.instructionName, new ADD());
-        instructionMap.Add(JMP.instructionName, new JMP());
-        instructionMap.Add(RJMP.instructionName, new RJMP());
+        instructionMap = new()
+        {
+            { ADD.instructionName, new ADD() },
+            { JMP.instructionName, new JMP() },
+            { RJMP.instructionName, new RJMP() },
+            { MOV.instructionName, new MOV() },
+            { LDI.instructionName, new LDI() },
+            { NOP.instructionName, new NOP() }
+        };
     }
 
     public bool IsValidInstruction(string instructionName)

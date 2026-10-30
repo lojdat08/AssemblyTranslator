@@ -10,7 +10,7 @@
         Background="#FF20448A" FontFamily="Microsoft Sans Serif" FontSize="18" FontWeight="Bold" 
         Icon="/TranslatorLogo.png" Loaded="Window_Loaded">
     <Grid>
-        <TextBox x:Name="InputTextBox" HorizontalAlignment="Left" Margin="50,50,0,0" Text="test:&#10;test4:&#10;JMP test2&#10;JMP test3&#10;test2:&#10;JMP test&#10;ADD r0 r15&#10;test3:&#10;JMP test2" VerticalAlignment="Top" Width="315" AcceptsTab="True" VerticalScrollBarVisibility="Visible" Height="562" AcceptsReturn="True"/>
+        <TextBox x:Name="InputTextBox" HorizontalAlignment="Left" Margin="50,50,0,0" Text="test:&#10;test4:&#10;JMP test2&#10;JMP test3&#10;RJMP test5&#10;test2:&#10;JMP test&#10;ADD r0 r15&#10;test3:&#10;JMP test2&#10;LDI r16, 255&#10;NOP&#10;NOP&#10;MOV r16, r16&#10;test5:" VerticalAlignment="Top" Width="315" AcceptsTab="True" VerticalScrollBarVisibility="Visible" Height="562" AcceptsReturn="True"/>
         <Button Content="----&gt;" HorizontalAlignment="Center" Margin="0,265,0,0" VerticalAlignment="Top" Height="100" Width="240" FontSize="48" Click="Button_Click"/>
         <TextBox x:Name="OutputTextBox" HorizontalAlignment="Right" Margin="0,50,50,0" VerticalAlignment="Top" Width="315" AcceptsTab="True" VerticalScrollBarVisibility="Visible" Height="562" IsReadOnly="True"/>
         <ListView x:Name="errorListView" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="382,390,382,28" Foreground="#FFE21C1C"/>

@@ -119,7 +119,7 @@ public class Lexer
     {
         if(text.Length > 2)
         {
-            bool negative = text.StartsWith("-");
+            bool negative = text[0] == '-';
             cislo = 0;
 
             if (text.Substring(negative ? 1 : 0, 2) == "0b")

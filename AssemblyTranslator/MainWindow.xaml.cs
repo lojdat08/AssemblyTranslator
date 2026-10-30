@@ -37,22 +37,10 @@ namespace AssemblyTranslator
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             string[] inputData = InputTextBox.Text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
-            string data = string.Empty;
-            foreach (string input in inputData)
-            {
-                data += input + "\n";
-            }
 
-            MessageBox.Show("Input data:\n" + data);
             bool succesed = translator.TranslateCode(inputData, out string[] outputData, out List<string> errorList, out string[] labelsList);
             if (succesed) MessageBox.Show("Translation Succeded. :)");
             else MessageBox.Show("Translation Failed. :(");
-
-            if (outputData == null)
-            {
-                MessageBox.Show("No output data.");
-                return;
-            }
 
             errorListView.Items.Clear();
             foreach (string error in errorList)
@@ -61,11 +49,9 @@ namespace AssemblyTranslator
             }
 
             OutputTextBox.Clear();
-            data = string.Empty;
             foreach (string output in outputData)
             {
                 OutputTextBox.AppendText(output + "\n");
-                data += output + "\n";
             }
 
             labelsListView.Items.Clear();
@@ -73,8 +59,6 @@ namespace AssemblyTranslator
             {
                 labelsListView.Items.Add(label);
             }
-
-            MessageBox.Show("Output data:\n" + data);
 
         }
     }
