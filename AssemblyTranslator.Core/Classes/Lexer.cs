@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Text;
+using System.Globalization;
 
 public class Lexer
 {
@@ -91,7 +91,7 @@ public class Lexer
 
     private bool TryConvertLexemToToken(string lexem, out Token token) // regsitry, návěstí, konstanty
     {
-        if (IsDigit(lexem, out int cislo)) token = new Constant(cislo);
+        if (IsDigit(lexem, out Int32 cislo)) token = new Constant(cislo);
         else if (IsLabel(lexem)) token = labels[RemoveLabelIdentifier(lexem)]; 
         else if (IsRegister(lexem, out Register register)) token = register;
         else
@@ -111,14 +111,38 @@ public class Lexer
     public bool IsValidLabel(string label)
     {
         if (label.Length < 2) return false;
-        if (char.IsDigit(label[0])) return false; // kvůli konfliktům návěstí a konstant nesmí návěstí obsahovat čílsici na prvním místě
         if (label[label.Length - 1] != ':') return false; // každé návěstí musí končit s ':'
         return true;
     }
 
-    private bool IsDigit(string text, out int cislo)
+    private bool IsDigit(string text, out Int32 cislo)
     {
-        return int.TryParse(text, out cislo);
+        if(text.Length > 2)
+        {
+            bool negative = text.StartsWith("-");
+            cislo = 0;
+
+            if (text.Substring(negative ? 1 : 0, 2) == "0b")
+            {
+                foreach(char let in text.Substring((negative ? 1 : 0) + 2))
+                {
+                    if (let < '0' || let > '1') return false;
+                    cislo <<= 1; // posune bity
+                    cislo |= let == '1' ? 1 : 0; // nastaví jeden bit
+                }
+
+                if (negative) cislo = -cislo;
+                return true;
+            }
+            else if(text.Substring(negative ? 1 : 0, 2) == "0x")
+            {
+                if (!UInt32.TryParse(text.Substring((negative ? 1 : 0) + 2), NumberStyles.AllowHexSpecifier, null, out UInt32 num)) return false;
+                cislo = (Int32)num;
+                if (negative) cislo = -cislo;
+                return true;
+            }
+        }
+        return Int32.TryParse(text, out cislo);
     }
 
     private bool IsRegister(string text, out Register register)
@@ -141,13 +165,28 @@ public class Lexer
         else return line.Substring(0, stopIndex);
     }
 
-    public void ChangeAddressesToRelative(Token[] tokens, Address curAddress)
+    public void ChangeTokensToAddresses(Token[] tokens)
+    {
+        for (int i = 0; i < tokens.Length; i++)
+        {
+            if (tokens[i].type == TokenType.constant)
+            {
+                tokens[i] = new Address((UInt32)((Constant)tokens[i]).value);
+            }
+        }
+    }
+
+    public void ChangeTokensToRelative(Token[] tokens, Address curAddress)
     {
         for(int i = 0; i < tokens.Length; i++)
         {
             if (tokens[i].type == TokenType.address)
             {
                 tokens[i] = ((Address)tokens[i]).relative(curAddress);
+            }
+            else if (tokens[i].type == TokenType.constant)
+            {
+                tokens[i] = new RelativeAddress(((Constant)tokens[i]).value);
             }
         }
     }

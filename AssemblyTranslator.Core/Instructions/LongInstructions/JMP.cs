@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 public class JMP : Instruction
 {
     public const string instructionName = "JMP";
-    public JMP() : base(instructionName, true) { }
+    public JMP() : base(instructionName, true, InstrucitonFlags.needsAddress) { }
 
     public override ushort GetOpcode(Token[] tokens)
     {
@@ -42,6 +42,6 @@ public class JMP : Instruction
     {
         if (tokens.Length != 1) return false;
         if (tokens[0].type != TokenType.address) return false;
-        return ((Address)tokens[0]).value <= Address.maxValue; // 2ˇ22 - 1
+        return ((Address)tokens[0]).value <= 4_194_303; // 2ˇ22 - 1
     }
 }

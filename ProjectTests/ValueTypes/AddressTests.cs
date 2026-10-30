@@ -8,8 +8,8 @@ namespace ProjectTests.ValueTypes
         {
             { "", false, 0},
             { "0", true, 0},
-            { Address.maxValue.ToString(), true, Address.maxValue},
-            { (Address.maxValue + 1).ToString(), false, 0},
+            { UInt32.MaxValue.ToString(), true, UInt32.MaxValue},
+            { ((UInt64)UInt32.MaxValue + 1).ToString(), false, 0},
             { "125543515255252", false, 0},
             { "-1", false, 0},
         };

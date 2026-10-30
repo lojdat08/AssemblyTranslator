@@ -3,7 +3,6 @@ using System.Runtime.CompilerServices;
 
 public class Address : Token
 {
-    public const UInt32 maxValue = 4194303; // 2ˇ22 - 1
     public UInt32 value;
 
     public Address(UInt32 value) : base(TokenType.address)
@@ -35,15 +34,7 @@ public class Address : Token
     public static bool TryParse(string input, out Address address)
     {
         address = new Address(0);
-        if (UInt32.TryParse(input, out UInt32 value))
-        {
-            if (value <= maxValue)
-            {
-                address.value = value;
-                return true;
-            }
-        }
-        return false;
+        return UInt32.TryParse(input, out address.value);
     }
 
     public override string ToString()

@@ -45,7 +45,8 @@ public class Translator
 
                 Instruction instruction = symbolTable.instructionMap[lexems[0]];
 
-                if ((instruction.instrucitonFlags & InstrucitonFlags.needsRelativeAddress) != 0) lexer.ChangeAddressesToRelative(tokens, curAddress);
+                if ((instruction.instrucitonFlags & InstrucitonFlags.needsRelativeAddress) != 0) lexer.ChangeTokensToRelative(tokens, curAddress);
+                if ((instruction.instrucitonFlags & InstrucitonFlags.needsAddress) != 0) lexer.ChangeTokensToAddresses(tokens);
                 if (instruction.IsValid(tokens))
                 {
                     if(!instruction.isLong)

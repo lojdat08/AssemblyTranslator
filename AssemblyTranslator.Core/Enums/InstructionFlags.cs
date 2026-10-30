@@ -2,5 +2,6 @@
 public enum InstrucitonFlags : byte
 {
     none = 0b0,
-    needsRelativeAddress = 0b1
+    needsRelativeAddress = 0b1,
+    needsAddress = 0b10
 }

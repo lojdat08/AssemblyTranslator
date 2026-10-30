@@ -33,8 +33,8 @@ namespace ProjectTests.Instructions
             { new Token[] { }, false }, // JMP - false
             { new Token[] { new Address(0) }, true }, // JMP 0 - true
             { new Token[] { new Address(1024) }, true }, // JMP 1024 - true
-            { new Token[] { new Address(Address.maxValue) }, true }, // JMP 4194303 - true
-            { new Token[] { new Address(Address.maxValue + 1) }, false }, // JMP 4194304 - false
+            { new Token[] { new Address(4194303) }, true }, // JMP 4194303 - true
+            { new Token[] { new Address(4194304) }, false }, // JMP 4194304 - false
             { new Token[] { new Address(10000000) }, false }, // JMP 10000000 - false
             { new Token[] { new Constant(0) }, false } // (experimental)
         };
