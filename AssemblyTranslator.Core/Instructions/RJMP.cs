@@ -17,6 +17,7 @@ public class RJMP : Instruction
     public override UInt16 GetOpcode(Token[] tokens)
     {
         RelativeAddress relativeAddress = (RelativeAddress)tokens[0];
+        relativeAddress.value--;
 
         UInt16 opcode = 0xC000; //1100 0000 0000 0000
         opcode |= (UInt16)(relativeAddress.value & 0x0FFF);

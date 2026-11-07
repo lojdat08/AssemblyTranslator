@@ -17,7 +17,7 @@ public class Translator
         lexer = new Lexer();
     }
 
-    public bool TranslateCode(string[] inputData, out string[] outputData, out List<string> errorList, out string[] labelsList)
+    public bool TranslateCode(string[] inputData, out UInt16[] opcodeData, out List<string> errorList, out string[] labelsList)
     {
         lexer.Reset();
         errorList = new List<string>();
@@ -25,8 +25,7 @@ public class Translator
         Address curAddress = new Address(0);
 
         ParseLabels(inputData, ref errorList, out UInt32 wordSize);
-        UInt16[] opcodeData = new UInt16[wordSize];
-        outputData = new string[wordSize];
+        opcodeData = new UInt16[wordSize];
 
         foreach (string line in inputData)
         {
@@ -45,8 +44,11 @@ public class Translator
 
                 Instruction instruction = symbolTable.instructionMap[lexems[0]];
 
-                if ((instruction.instrucitonFlags & InstrucitonFlags.needsRelativeAddress) != 0) lexer.ChangeTokensToRelative(tokens, curAddress);
-                if ((instruction.instrucitonFlags & InstrucitonFlags.needsAddress) != 0) lexer.ChangeTokensToAddresses(tokens);
+                if (instruction.instrucitonFlags != InstrucitonFlags.none)
+                {
+                    if ((instruction.instrucitonFlags & InstrucitonFlags.needsRelativeAddress) != 0) lexer.ChangeTokensToRelative(tokens, curAddress);
+                    if ((instruction.instrucitonFlags & InstrucitonFlags.needsAddress) != 0) lexer.ChangeTokensToAddresses(tokens);
+                }
                 if (instruction.IsValid(tokens))
                 {
                     if(!instruction.isLong)
@@ -78,11 +80,6 @@ public class Translator
             }
         }
 
-        for(int i = 0; i < wordSize; i++)
-        {
-            outputData[i] = opcodeData[i].ToString("X4");
-        }
-
         {
             labelsList = new string[lexer.labels.Count];
             int i = 0;
@@ -94,6 +91,11 @@ public class Translator
         }
 
         return errorList.Count == 0;
+    }
+
+    public bool TranslateCode(string[] inputData, out UInt16[] opcodeData, out List<string> errorList)
+    {
+        return TranslateCode(inputData, out opcodeData, out errorList, out string[] labelsList);
     }
 
     private void ParseLabels(string[] inputData, ref List<string> errorList, out UInt32 wordSize)
